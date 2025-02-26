@@ -1,22 +1,84 @@
-# 앱 아이콘 만들기
+# Back키 처리
 
-- https://icon.kitchen/i
-- https://www.appicon.co/
-- /android/app/src/main/res 폴더에 붙여넣기
+- App.tsx
 
-## [icon.kitchen](https://icon.kitchen/i)에 접속
+```tsx
+import React, {useEffect} from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
+import WebView from 'react-native-webview';
 
-![Image](https://github.com/user-attachments/assets/5563dcf0-c486-45da-9f09-b2831971becf)
+const App = (): JSX.Element => {
+  const webViewUrl = 'https://app-fish-y3pa.vercel.app';
 
-- 원하는 이미지 생성 후 download 클릭
-- zip파일 압축 풀기 후 폴더 덮어 쓰기
+  // back 키 처리
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('앱 종료', '앱을 종료하시겠습니까?', [
+        {text: '취소', onPress: () => null, style: 'cancel'},
+        {text: '종료', onPress: () => BackHandler.exitApp()},
+      ]);
+      return true; // 기본 뒤로가기 방지
+    };
 
-```
-- 덮어 쓸 폴더
-mipmap-anydpi-v26
-mipmap-hdpi
-mipmap-mdpi
-mipmap-xhdpi
-mipmap-xxhdpi
-mipmap-xxxhdpi
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove(); // 앱 종료시 이벤트 리스너 정리
+  }, []);
+
+  // SafeAreaView는 기기의 indicator 영역을 제외한 컨텐츠 영역 배치
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        source={{uri: webViewUrl}} // 웹뷰에 보여줄 URL 주소
+        startInLoadingState={true} // 웹뷰가 로딩될 때 인디케이터 표시
+        renderLoading={() => (
+          // 웹뷰 로딩중 일때 표시될 로딩 인디케이터 컴포넌트
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size={'large'} color={'#0000ff'} />
+          </View>
+        )}
+        // 로딩 완료
+        onLoadEnd={() => {
+          console.log('로딩완료');
+          setTimeout(() => {
+            SplashScreen.hide();
+          }, 1000);
+        }}
+        style={styles.webview}
+      />
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  webview: {
+    flex: 1,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+});
+export default App;
 ```
