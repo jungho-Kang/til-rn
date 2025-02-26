@@ -1,9 +1,13 @@
 import React from 'react';
 import {ActivityIndicator, SafeAreaView, StyleSheet, View} from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 import WebView from 'react-native-webview';
 
 const App = (): JSX.Element => {
   const webViewUrl = 'https://app-fish-y3pa.vercel.app';
+
+  // Splash Screen 적용
+
   // SafeAreaView는 기기의 indicator 영역을 제외한 컨텐츠 영역 배치
   return (
     <SafeAreaView style={styles.container}>
@@ -16,6 +20,13 @@ const App = (): JSX.Element => {
             <ActivityIndicator size={'large'} color={'#0000ff'} />
           </View>
         )}
+        // 로딩 완료
+        onLoadEnd={() => {
+          console.log('로딩완료');
+          setTimeout(() => {
+            SplashScreen.hide();
+          }, 1000);
+        }}
         style={styles.webview}
       />
     </SafeAreaView>
