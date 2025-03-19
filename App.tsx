@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -11,15 +11,29 @@ import SplashScreen from 'react-native-splash-screen';
 import WebView from 'react-native-webview';
 
 const App = (): JSX.Element => {
-  const webViewUrl = 'https://attaparune.kro.kr:5232/';
+  const webViewRef = useRef<WebView>(null); // WebView 참조
+  const [canGoBack, setCanGoBack] = useState(false); // 뒤로 가기 가능 여부
+
+  const webViewUrl = 'http://192.168.0.204:5173/';
+
+  console.log('안녕');
 
   // back 키 처리
   useEffect(() => {
     const backAction = () => {
-      Alert.alert('앱 종료', '앱을 종료하시겠습니까?', [
-        {text: '취소', onPress: () => null, style: 'cancel'},
-        {text: '종료', onPress: () => BackHandler.exitApp()},
-      ]);
+      if (canGoBack && webViewRef.current) {
+        webViewRef.current.goBack(); // 이전 페이지로 이동
+      } else {
+        Alert.alert('앱 종료', '앱을 종료하시겠습니까?', [
+          {text: '취소', onPress: () => null, style: 'cancel'},
+          {text: '종료', onPress: () => BackHandler.exitApp()},
+        ]);
+      }
+
+      // Alert.alert('앱 종료', '앱을 종료하시겠습니까?', [
+      //   {text: '취소', onPress: () => null, style: 'cancel'},
+      //   {text: '종료', onPress: () => BackHandler.exitApp()},
+      // ]);
       return true; // 기본 뒤로가기 방지
     };
 
@@ -29,12 +43,13 @@ const App = (): JSX.Element => {
     );
 
     return () => backHandler.remove(); // 앱 종료시 이벤트 리스너 정리
-  }, []);
+  }, [canGoBack]); // `canGoBack` 상태가 변경될 때마다 업데이트
 
   // SafeAreaView는 기기의 indicator 영역을 제외한 컨텐츠 영역 배치
   return (
     <SafeAreaView style={styles.container}>
       <WebView
+        ref={webViewRef} // WebView 참조 설정
         source={{uri: webViewUrl}} // 웹뷰에 보여줄 URL 주소
         startInLoadingState={true} // 웹뷰가 로딩될 때 인디케이터 표시
         renderLoading={() => (
@@ -43,12 +58,17 @@ const App = (): JSX.Element => {
             <ActivityIndicator size={'large'} color={'#0000ff'} />
           </View>
         )}
+        // Android 오버스크롤 방지
+        overScrollMode="never"
         // 로딩 완료
         onLoadEnd={() => {
           console.log('로딩완료');
           setTimeout(() => {
             SplashScreen.hide();
           }, 1000);
+        }}
+        onNavigationStateChange={navState => {
+          setCanGoBack(navState.canGoBack); // 뒤로 가기 가능 여부 업데이트
         }}
         style={styles.webview}
       />
