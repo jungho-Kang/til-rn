@@ -14,7 +14,7 @@ const App = (): JSX.Element => {
   const webViewRef = useRef<WebView>(null); // WebView 참조
   const [canGoBack, setCanGoBack] = useState(false); // 뒤로 가기 가능 여부
 
-  const webViewUrl = 'http://192.168.0.204:5173/';
+  const webViewUrl = 'https://attaparune.kro.kr:5232/';
 
   console.log('안녕');
 
