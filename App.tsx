@@ -11,7 +11,7 @@ import SplashScreen from 'react-native-splash-screen';
 import WebView from 'react-native-webview';
 
 const App = (): JSX.Element => {
-  const webViewUrl = 'http://112.222.157.157:5222/';
+  const webViewUrl = 'https://attaparune.kro.kr:5232/';
 
   // back 키 처리
   useEffect(() => {
